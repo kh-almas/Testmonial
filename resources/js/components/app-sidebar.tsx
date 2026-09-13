@@ -15,6 +15,9 @@ import {
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
 import type { NavItem } from '@/types';
+import { usePage } from '@inertiajs/react';
+import { KeyRound, ShieldCheck, Users } from 'lucide-react';
+import type { RbacPageProps } from '@/types/rbac';
 
 const mainNavItems: NavItem[] = [
     {
@@ -38,6 +41,21 @@ const footerNavItems: NavItem[] = [
 ];
 
 export function AppSidebar() {
+    const { auth } = usePage<RbacPageProps>().props;
+    const permissions = new Set(auth.permissions ?? []);
+
+    const rbacNavItems = [
+        permissions.has('users.manage')
+            ? { title: 'Users', href: '/admin/users', icon: Users }
+            : null,
+        permissions.has('roles.manage')
+            ? { title: 'Roles', href: '/admin/roles', icon: ShieldCheck }
+            : null,
+        permissions.has('permissions.manage')
+            ? { title: 'Permissions', href: '/admin/permissions', icon: KeyRound }
+            : null,
+    ].filter((item): item is NavItem => item !== null);
+
     return (
         <Sidebar collapsible="icon" variant="inset">
             <SidebarHeader>
@@ -53,7 +71,7 @@ export function AppSidebar() {
             </SidebarHeader>
 
             <SidebarContent>
-                <NavMain items={mainNavItems} />
+                <NavMain items={[...mainNavItems, ...rbacNavItems]} />
             </SidebarContent>
 
             <SidebarFooter>
