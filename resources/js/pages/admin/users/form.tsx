@@ -1,25 +1,10 @@
 import type { FormEvent } from 'react';
-import { Head, Link, useForm } from '@inertiajs/react';
-import AppLayout from '@/layouts/app-layout';
-import FieldError from '@/components/admin/field-error';
-import FlashMessages from '@/components/admin/flash-messages';
-import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { useForm } from '@inertiajs/react';
+import { AdminForm, FormHeading, MultiSelect, TextField } from '@/components/admin/admin-ui';
 import type { RoleOption } from '@/types/rbac';
 
-type UserFormRecord = {
-    id: number;
-    name: string;
-    email: string;
-    role_ids: number[];
-};
-
-type Props = {
-    user: UserFormRecord | null;
-    roles: RoleOption[];
-};
+type UserFormRecord = { id: number; name: string; email: string; role_ids: number[] };
+type Props = { user: UserFormRecord | null; roles: RoleOption[] };
 
 export default function UserForm({ user, roles }: Props) {
     const editing = user !== null;
@@ -28,139 +13,40 @@ export default function UserForm({ user, roles }: Props) {
         email: user?.email ?? '',
         password: '',
         password_confirmation: '',
-        role_ids: user?.role_ids ?? ([] as number[]),
+        role_ids: (user?.role_ids ?? []).map(Number),
     });
-
-    function toggleRole(roleId: number, checked: boolean) {
-        form.setData(
-            'role_ids',
-            checked
-                ? [...form.data.role_ids, roleId]
-                : form.data.role_ids.filter((id) => id !== roleId),
-        );
-    }
-
-    function submit(event: FormEvent) {
+    function submit(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
-
-        if (editing) {
-            form.put(`/admin/users/${user.id}`);
-            return;
-        }
-
-        form.post('/admin/users');
+        if (editing) form.put(`/admin/users/${user.id}`);
+        else form.post('/admin/users');
     }
-
-    return (
-        <AppLayout
-            breadcrumbs={[
-                { title: 'Users', href: '/admin/users' },
-                {
-                    title: editing ? 'Edit user' : 'Add user',
-                    href: editing ? `/admin/users/${user.id}/edit` : '/admin/users/create',
-                },
-            ]}
-        >
-            <Head title={editing ? 'Edit user' : 'Add user'} />
-
-            <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-4 p-4 md:p-6">
-                <div>
-                    <h1 className="text-2xl font-semibold tracking-tight">
-                        {editing ? 'Edit user' : 'Add user'}
-                    </h1>
-                    <p className="text-sm text-muted-foreground">
-                        Use the default Laravel user fields and assign at least one role.
-                    </p>
-                </div>
-
-                <FlashMessages />
-
-                <form onSubmit={submit} className="space-y-5 rounded-xl border bg-card p-5 shadow-sm">
-                    <div className="space-y-2">
-                        <Label htmlFor="name">Name</Label>
-                        <Input
-                            id="name"
-                            value={form.data.name}
-                            onChange={(event) => form.setData('name', event.target.value)}
-                            autoComplete="name"
-                        />
-                        <FieldError message={form.errors.name} />
-                    </div>
-
-                    <div className="space-y-2">
-                        <Label htmlFor="email">Email</Label>
-                        <Input
-                            id="email"
-                            type="email"
-                            value={form.data.email}
-                            onChange={(event) => form.setData('email', event.target.value)}
-                            autoComplete="email"
-                        />
-                        <FieldError message={form.errors.email} />
-                    </div>
-
-                    <div className="grid gap-4 md:grid-cols-2">
-                        <div className="space-y-2">
-                            <Label htmlFor="password">
-                                Password {editing ? '(optional)' : ''}
-                            </Label>
-                            <Input
-                                id="password"
-                                type="password"
-                                value={form.data.password}
-                                onChange={(event) => form.setData('password', event.target.value)}
-                                autoComplete="new-password"
-                            />
-                            <FieldError message={form.errors.password} />
-                        </div>
-
-                        <div className="space-y-2">
-                            <Label htmlFor="password_confirmation">Confirm password</Label>
-                            <Input
-                                id="password_confirmation"
-                                type="password"
-                                value={form.data.password_confirmation}
-                                onChange={(event) =>
-                                    form.setData('password_confirmation', event.target.value)
-                                }
-                                autoComplete="new-password"
-                            />
-                        </div>
-                    </div>
-
-                    <fieldset className="space-y-3">
-                        <legend className="text-sm font-medium">Roles</legend>
-                        <div className="grid gap-3 rounded-lg border p-4 sm:grid-cols-2">
-                            {roles.map((role) => (
-                                <label key={role.id} className="flex items-start gap-3">
-                                    <Checkbox
-                                        checked={form.data.role_ids.includes(role.id)}
-                                        onCheckedChange={(value) =>
-                                            toggleRole(role.id, value === true)
-                                        }
-                                    />
-                                    <span>
-                                        <span className="block text-sm font-medium">{role.name}</span>
-                                        <span className="block font-mono text-xs text-muted-foreground">
-                                            {role.slug}
-                                        </span>
-                                    </span>
-                                </label>
-                            ))}
-                        </div>
-                        <FieldError message={form.errors.role_ids} />
-                    </fieldset>
-
-                    <div className="flex justify-end gap-2 border-t pt-5">
-                        <Button asChild variant="outline">
-                            <Link href="/admin/users">Cancel</Link>
-                        </Button>
-                        <Button type="submit" disabled={form.processing}>
-                            {form.processing ? 'Saving…' : editing ? 'Update user' : 'Create user'}
-                        </Button>
-                    </div>
-                </form>
-            </div>
-        </AppLayout>
-    );
+    return <AdminForm
+        section="users" title={editing ? 'Edit user' : 'Create user'}
+        description="Set account details, credentials, and the roles that grant access."
+        backHref="/admin/users" editing={editing} processing={form.processing} onSubmit={submit}
+        guidance={<><h3>Access guidance</h3>
+            <p>Users receive permissions through the roles you assign here.</p>
+            <ul><li>Every account needs at least one role.</li><li>Leave the password blank when editing to keep the existing password.</li><li>Changes to roles take effect on the next request.</li></ul></>}
+    >
+        <FormHeading title="Account information" description="Basic details displayed throughout the application." />
+        <div className="rbac-fields-two">
+            <TextField id="name" label="Full name" value={form.data.name} maxLength={255} autoComplete="name" required
+                       onChange={(event) => form.setData('name', event.target.value)} error={form.errors.name} />
+            <TextField id="email" label="Email address" value={form.data.email} type="email" maxLength={255} autoComplete="email" required
+                       onChange={(event) => form.setData('email', event.target.value)} error={form.errors.email} />
+        </div>
+        <div className="rbac-divider" />
+        <FormHeading title="Security" description={editing ? 'Only enter a new password if it needs to change.' : 'Create a password for the new account.'} />
+        <div className="rbac-fields-two">
+            <TextField id="password" label={editing ? 'New password' : 'Password'} value={form.data.password} type="password"
+                       autoComplete="new-password" required={!editing} onChange={(event) => form.setData('password', event.target.value)} error={form.errors.password} />
+            <TextField id="password_confirmation" label="Confirm password" value={form.data.password_confirmation} type="password"
+                       autoComplete="new-password" required={!editing} onChange={(event) => form.setData('password_confirmation', event.target.value)}
+                       error={form.errors.password_confirmation} />
+        </div>
+        <div className="rbac-divider" />
+        <FormHeading title="Access" description="Select one or more roles for this account." />
+        <MultiSelect label="Assigned roles" options={roles} selected={form.data.role_ids}
+                     onChange={(ids) => form.setData('role_ids', ids)} error={form.errors.role_ids ?? form.errors['role_ids.0' as keyof typeof form.errors]} />
+    </AdminForm>;
 }

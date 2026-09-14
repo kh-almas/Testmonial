@@ -1,23 +1,9 @@
 import type { FormEvent } from 'react';
-import { Head, Link, useForm } from '@inertiajs/react';
-import AppLayout from '@/layouts/app-layout';
-import FieldError from '@/components/admin/field-error';
-import FlashMessages from '@/components/admin/flash-messages';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { useForm } from '@inertiajs/react';
+import { AdminForm, FormHeading, TextAreaField, TextField } from '@/components/admin/admin-ui';
 
-type PermissionFormRecord = {
-    id: number;
-    name: string;
-    slug: string;
-    description: string | null;
-    protected: boolean;
-};
-
-type Props = {
-    permission: PermissionFormRecord | null;
-};
+type PermissionFormRecord = { id: number; name: string; slug: string; description: string | null; protected: boolean };
+type Props = { permission: PermissionFormRecord | null };
 
 export default function PermissionForm({ permission }: Props) {
     const editing = permission !== null;
@@ -26,94 +12,27 @@ export default function PermissionForm({ permission }: Props) {
         slug: permission?.slug ?? '',
         description: permission?.description ?? '',
     });
-
-    function submit(event: FormEvent) {
+    function submit(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
-
-        if (editing) {
-            form.put(`/admin/permissions/${permission.id}`);
-            return;
-        }
-
-        form.post('/admin/permissions');
+        if (editing) form.put(`/admin/permissions/${permission.id}`);
+        else form.post('/admin/permissions');
     }
-
-    return (
-        <AppLayout
-            breadcrumbs={[
-                { title: 'Permissions', href: '/admin/permissions' },
-                {
-                    title: editing ? 'Edit permission' : 'Add permission',
-                    href: editing
-                        ? `/admin/permissions/${permission.id}/edit`
-                        : '/admin/permissions/create',
-                },
-            ]}
-        >
-            <Head title={editing ? 'Edit permission' : 'Add permission'} />
-
-            <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-4 p-4 md:p-6">
-                <div>
-                    <h1 className="text-2xl font-semibold tracking-tight">
-                        {editing ? 'Edit permission' : 'Add permission'}
-                    </h1>
-                    <p className="text-sm text-muted-foreground">
-                        Use a short resource.action slug.
-                    </p>
-                </div>
-
-                <FlashMessages />
-
-                <form onSubmit={submit} className="space-y-5 rounded-xl border bg-card p-5 shadow-sm">
-                    <div className="space-y-2">
-                        <Label htmlFor="name">Name</Label>
-                        <Input
-                            id="name"
-                            value={form.data.name}
-                            onChange={(event) => form.setData('name', event.target.value)}
-                        />
-                        <FieldError message={form.errors.name} />
-                    </div>
-
-                    <div className="space-y-2">
-                        <Label htmlFor="slug">Slug</Label>
-                        <Input
-                            id="slug"
-                            value={form.data.slug}
-                            onChange={(event) => form.setData('slug', event.target.value)}
-                            placeholder="stories.manage"
-                            disabled={permission?.protected === true}
-                            className="font-mono"
-                        />
-                        <FieldError message={form.errors.slug} />
-                    </div>
-
-                    <div className="space-y-2">
-                        <Label htmlFor="description">Description</Label>
-                        <textarea
-                            id="description"
-                            rows={3}
-                            value={form.data.description}
-                            onChange={(event) => form.setData('description', event.target.value)}
-                            className="w-full rounded-md border bg-background px-3 py-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                        />
-                        <FieldError message={form.errors.description} />
-                    </div>
-
-                    <div className="flex justify-end gap-2 border-t pt-5">
-                        <Button asChild variant="outline">
-                            <Link href="/admin/permissions">Cancel</Link>
-                        </Button>
-                        <Button type="submit" disabled={form.processing}>
-                            {form.processing
-                                ? 'Saving…'
-                                : editing
-                                    ? 'Update permission'
-                                    : 'Create permission'}
-                        </Button>
-                    </div>
-                </form>
-            </div>
-        </AppLayout>
-    );
+    return <AdminForm
+        section="permissions" title={editing ? 'Edit permission' : 'Create permission'}
+        description="Create an action that can be granted through roles."
+        backHref="/admin/permissions" editing={editing} processing={form.processing} onSubmit={submit}
+        guidance={<><h3>Permission guidance</h3><p>A permission grants access once it is assigned to a role and checked by application code.</p>
+            <ul><li>Use a consistent resource.action identifier.</li><li>System identifiers stay fixed to protect admin access.</li><li>Remove a permission from roles before deleting it.</li></ul></>}
+    >
+        <FormHeading title="Permission details" description="Use a readable name and an identifier for route checks." />
+        <div className="rbac-fields-two">
+            <TextField id="name" label="Permission name" value={form.data.name} required maxLength={100}
+                       placeholder="Manage testimonials" onChange={(event) => form.setData('name', event.target.value)} error={form.errors.name} />
+            <TextField id="slug" label="Identifier" value={form.data.slug} required maxLength={100}
+                       placeholder="testimonials.manage" readOnly={permission?.protected} hint="Example: testimonials.manage"
+                       onChange={(event) => form.setData('slug', event.target.value)} error={form.errors.slug} />
+        </div>
+        <TextAreaField id="description" label="Description" value={form.data.description} maxLength={255}
+                       onChange={(event) => form.setData('description', event.target.value)} error={form.errors.description} />
+    </AdminForm>;
 }

@@ -48,12 +48,6 @@ export function AppSidebar() {
         permissions.has('users.manage')
             ? { title: 'Users', href: '/admin/users', icon: Users }
             : null,
-        permissions.has('roles.manage')
-            ? { title: 'Roles', href: '/admin/roles', icon: ShieldCheck }
-            : null,
-        permissions.has('permissions.manage')
-            ? { title: 'Permissions', href: '/admin/permissions', icon: KeyRound }
-            : null,
     ].filter((item): item is NavItem => item !== null);
 
     return (
