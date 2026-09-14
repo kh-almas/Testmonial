@@ -1,5 +1,5 @@
 import { Link } from '@inertiajs/react';
-import {BookOpen, FolderGit2, LayoutGrid, NotebookPen} from 'lucide-react';
+import {BookOpen, BriefcaseMedical, FileCheck2, FolderGit2, LayoutGrid, NotebookPen} from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
@@ -24,6 +24,11 @@ const mainNavItems: NavItem[] = [
         title: 'Dashboard',
         href: dashboard(),
         icon: LayoutGrid,
+    },
+    {
+        title: 'Practitioner Application',
+        href: '/practitioner/application',
+        icon: BriefcaseMedical,
     },
     {
         title: 'My Observations',
@@ -52,6 +57,14 @@ export function AppSidebar() {
     const rbacNavItems = [
         permissions.has('users.manage')
             ? { title: 'Users', href: '/admin/users', icon: Users }
+            : null,
+
+        permissions.has('practitioner_verifications.manage')
+            ? {
+                title: 'Practitioner Verification',
+                href: '/admin/practitioner-verifications',
+                icon: FileCheck2,
+            }
             : null,
     ].filter((item): item is NavItem => item !== null);
 
