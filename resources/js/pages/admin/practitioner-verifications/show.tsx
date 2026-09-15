@@ -1,6 +1,5 @@
 import { Head, Link, useForm } from '@inertiajs/react';
 import { FileText, ShieldCheck } from 'lucide-react';
-import AppLayout from '@/layouts/app-layout';
 import FieldError from '@/components/admin/field-error';
 import FlashMessages from '@/components/admin/flash-messages';
 import { Input } from '@/components/ui/input';
@@ -160,18 +159,7 @@ export default function PractitionerVerificationShow({
     }
 
     return (
-        <AppLayout
-            breadcrumbs={[
-                {
-                    title: 'Practitioner Verification',
-                    href: '/admin/practitioner-verifications',
-                },
-                {
-                    title: `Attempt #${verification.attempt_number}`,
-                    href: `/admin/practitioner-verifications/${verification.id}`,
-                },
-            ]}
-        >
+        <>
             <Head title={`Practitioner Verification #${verification.id}`} />
 
             <div className="flex h-full flex-1 flex-col gap-5 overflow-x-hidden p-4 md:p-6">
@@ -547,6 +535,15 @@ export default function PractitionerVerificationShow({
                     </div>
                 )}
             </div>
-        </AppLayout>
+        </>
     );
 }
+
+PractitionerVerificationShow.layout = {
+    breadcrumbs: [
+        {
+            title: 'Practitioner Verification',
+            href: '/admin/practitioner-verifications',
+        },
+    ],
+};

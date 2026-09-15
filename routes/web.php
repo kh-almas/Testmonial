@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\MyObservationController;
 use App\Http\Controllers\PractitionerApplicationController;
+use App\Http\Controllers\PractitionerPatientController;
 use Illuminate\Support\Facades\Route;
 
 Route::inertia('/', 'welcome')->name('home');
@@ -74,6 +75,24 @@ Route::middleware('auth')
         Route::get('/', [PractitionerApplicationController::class, 'show'])->name('show');
         Route::post('/draft', [PractitionerApplicationController::class, 'saveDraft'])->name('draft');
         Route::post('/submit', [PractitionerApplicationController::class, 'submit'])->middleware('verified')->name('submit');
+    });
+
+Route::middleware([
+    'auth',
+    'verified',
+    'approved.practitioner',
+    'permission:practitioner_clients.manage',
+])
+    ->prefix('practitioner/patients')
+    ->name('practitioner.patients.')
+    ->group(function (): void {
+        Route::get('/', [PractitionerPatientController::class, 'index'])->name('index');
+        Route::get('/create', [PractitionerPatientController::class, 'create'])->name('create');
+        Route::post('/', [PractitionerPatientController::class, 'store'])->name('store');
+        Route::get('/{client}/edit', [PractitionerPatientController::class, 'edit'])->name('edit');
+        Route::put('/{client}', [PractitionerPatientController::class, 'update'])->name('update');
+        Route::patch('/{client}/archive', [PractitionerPatientController::class, 'archive'])->name('archive');
+        Route::patch('/{client}/restore', [PractitionerPatientController::class, 'restore'])->name('restore');
     });
 
 require __DIR__.'/settings.php';

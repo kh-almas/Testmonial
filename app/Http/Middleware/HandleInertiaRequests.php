@@ -2,41 +2,29 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Practitioner;
+use App\Support\Rbac;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
-use App\Support\Rbac;
 
 class HandleInertiaRequests extends Middleware
 {
-    /**
-     * The root template that's loaded on the first page visit.
-     *
-     * @see https://inertiajs.com/server-side-setup#root-template
-     *
-     * @var string
-     */
     protected $rootView = 'app';
 
-    /**
-     * Determines the current asset version.
-     *
-     * @see https://inertiajs.com/asset-versioning
-     */
     public function version(Request $request): ?string
     {
         return parent::version($request);
     }
 
-    /**
-     * Define the props that are shared by default.
-     *
-     * @see https://inertiajs.com/shared-data
-     *
-     * @return array<string, mixed>
-     */
     public function share(Request $request): array
     {
         $user = $request->user();
+
+        $practitioner = $user
+            ? Practitioner::query()
+                ->where('user_id', $user->id)
+                ->first(['id', 'verification_status'])
+            : null;
 
         return [
             ...parent::share($request),
@@ -45,6 +33,17 @@ class HandleInertiaRequests extends Middleware
                 'permissions' => fn (): array => $user
                     ? Rbac::permissions($user->id)
                     : [],
+                'practitioner' => $practitioner
+                    ? [
+                        'exists' => true,
+                        'status' => $practitioner->verification_status,
+                        'approved' => $practitioner->verification_status === 'approved',
+                    ]
+                    : [
+                        'exists' => false,
+                        'status' => null,
+                        'approved' => false,
+                    ],
             ],
             'flash' => [
                 'success' => fn () => $request->session()->get('success'),

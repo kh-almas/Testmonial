@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from 'react';
 import type { FormEvent, ReactNode } from 'react';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { ArrowLeft, Check, ChevronDown, KeyRound, MoreHorizontal, Plus, Search, Shield, Trash2, Users, X } from 'lucide-react';
-import AppLayout from '@/layouts/app-layout';
 import {
     DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
@@ -29,11 +28,10 @@ export function AdminPage({
     children: ReactNode;
 }) {
     const { auth } = usePage<RbacPageProps>().props;
-    const currentSection = sections.find((item) => item.title.toLowerCase() === section);
     const visibleSections = sections.filter((item) => auth.permissions?.includes(item.permission));
 
     return (
-        <AppLayout breadcrumbs={[{ title: currentSection?.title ?? 'Administration', href: currentSection?.href ?? '/dashboard' }]}>
+        <>
             <Head title={title} />
             <main className="rbac">
                 <div className="rbac-container">
@@ -58,16 +56,16 @@ export function AdminPage({
                     {children}
                 </div>
             </main>
-        </AppLayout>
+        </>
     );
 }
 
 type Column<RecordType> = { heading: string; render: (record: RecordType) => ReactNode };
 
 export function AdminList<RecordType extends { id: number; name: string }>({
-                                                                               section, title, description, collection, filters, indexHref,
-                                                                               createHref, createLabel, columns, editHref, onDelete, canDelete, emptyText,
-                                                                           }: {
+   section, title, description, collection, filters, indexHref,
+   createHref, createLabel, columns, editHref, onDelete, canDelete, emptyText,
+}: {
     section: Section;
     title: string;
     description: string;

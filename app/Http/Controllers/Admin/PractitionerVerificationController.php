@@ -256,6 +256,29 @@ class PractitionerVerificationController extends Controller
                 'verification_status' => $validated['decision'],
             ]);
 
+            if ($validated['decision'] === 'approved') {
+                $practitionerRoleId = DB::table('roles')
+                    ->where('slug', 'practitioner')
+                    ->value('id');
+
+                if (! $practitionerRoleId) {
+                    throw ValidationException::withMessages([
+                        'decision' => 'The practitioner role does not exist.',
+                    ]);
+                }
+
+                DB::table('user_roles')->updateOrInsert(
+                    [
+                        'user_id' => $practitioner->user_id,
+                        'role_id' => $practitionerRoleId,
+                    ],
+                    [
+                        'assigned_by_user_id' => $request->user()->id,
+                        'updated_at' => now(),
+                    ]
+                );
+            }
+
             AuditLog::query()->create([
                 'actor_user_id' => $request->user()->id,
                 'action' => "practitioner_verification.{$validated['decision']}",

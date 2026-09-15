@@ -37,3 +37,12 @@ export default function PermissionsIndex({ permissions, protectedPermissions, fi
         }}
     />;
 }
+
+PermissionsIndex.layout = {
+    breadcrumbs: [
+        {
+            title: 'Permissions',
+            href: '/admin/permissions',
+        },
+    ],
+};

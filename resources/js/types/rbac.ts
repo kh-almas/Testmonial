@@ -49,14 +49,23 @@ export type Paginated<T> = {
 
 export type RbacPageProps = {
     [key: string]: unknown;
+
     auth: {
         user: {
             id: number;
             name: string;
             email: string;
         } | null;
+
         permissions: string[];
+
+        practitioner: {
+            exists: boolean;
+            status: string | null;
+            approved: boolean;
+        };
     };
+
     flash: {
         success?: string;
         error?: string;

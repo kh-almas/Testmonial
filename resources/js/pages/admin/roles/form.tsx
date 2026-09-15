@@ -42,3 +42,12 @@ export default function RoleForm({ role, permissions }: Props) {
                      onChange={(ids) => form.setData('permission_ids', ids)} error={form.errors.permission_ids ?? form.errors['permission_ids.0' as keyof typeof form.errors]} />
     </AdminForm>;
 }
+
+RoleForm.layout = {
+    breadcrumbs: [
+        {
+            title: 'Roles',
+            href: '/admin/roles',
+        },
+    ],
+};

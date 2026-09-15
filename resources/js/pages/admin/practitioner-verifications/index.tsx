@@ -2,7 +2,6 @@ import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { Head, Link, router } from '@inertiajs/react';
 import { Search, ShieldCheck } from 'lucide-react';
-import AppLayout from '@/layouts/app-layout';
 import FlashMessages from '@/components/admin/flash-messages';
 import Pagination from '@/components/admin/pagination';
 import { Input } from '@/components/ui/input';
@@ -74,14 +73,7 @@ export default function PractitionerVerificationIndex({ verifications, filters }
     }
 
     return (
-        <AppLayout
-            breadcrumbs={[
-                {
-                    title: 'Practitioner Verification',
-                    href: '/admin/practitioner-verifications',
-                },
-            ]}
-        >
+        <>
             <Head title="Practitioner Verification" />
 
             <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4 md:p-6">
@@ -238,6 +230,16 @@ export default function PractitionerVerificationIndex({ verifications, filters }
                     </div>
                 </div>
             </div>
-        </AppLayout>
+        </>
     );
 }
+
+PractitionerVerificationIndex.layout = {
+    breadcrumbs: [
+        {
+            title: 'Practitioner Verification',
+            href: '/admin/practitioner-verifications',
+        },
+    ],
+};
+

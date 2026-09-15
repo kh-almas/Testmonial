@@ -31,3 +31,12 @@ export default function UsersIndex({ users, filters }: Props) {
         }}
     />;
 }
+
+UsersIndex.layout = {
+    breadcrumbs: [
+        {
+            title: 'Users',
+            href: '/admin/users',
+        },
+    ],
+};

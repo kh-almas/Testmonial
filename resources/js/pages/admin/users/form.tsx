@@ -50,3 +50,12 @@ export default function UserForm({ user, roles }: Props) {
                      onChange={(ids) => form.setData('role_ids', ids)} error={form.errors.role_ids ?? form.errors['role_ids.0' as keyof typeof form.errors]} />
     </AdminForm>;
 }
+
+UserForm.layout = {
+    breadcrumbs: [
+        {
+            title: 'Users',
+            href: '/admin/users',
+        },
+    ],
+};

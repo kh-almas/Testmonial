@@ -36,3 +36,12 @@ export default function PermissionForm({ permission }: Props) {
                        onChange={(event) => form.setData('description', event.target.value)} error={form.errors.description} />
     </AdminForm>;
 }
+
+PermissionForm.layout = {
+    breadcrumbs: [
+        {
+            title: 'Permissions',
+            href: '/admin/permissions',
+        },
+    ],
+};

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\EnsureApprovedPractitioner;
 use App\Http\Middleware\EnsurePermission;
 use App\Http\Middleware\HandleAppearance;
 use App\Http\Middleware\HandleInertiaRequests;
@@ -26,6 +27,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->alias([
             'permission' => EnsurePermission::class,
+            'approved.practitioner' => EnsureApprovedPractitioner::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
